@@ -1,0 +1,71 @@
+application_api_version: v1beta1
+properties:
+  name:
+    type: string
+    x-google-marketplace:
+      type: NAME
+  namespace:
+    type: string
+    x-google-marketplace:
+      type: NAMESPACE
+  image:
+    type: string
+    default: $REGISTRY:$TAG
+    x-google-marketplace:
+      type: IMAGE
+  nodes:
+    title: Number of elassandra pods
+    type: integer
+    default: 3
+    minimum: 1
+    maximum: 30
+ # authEnabled:
+ #   title: Enable SSL Encryption and Authorization
+ #   type: string
+ #   default: "true"
+ #   enum:
+ #   - "true"
+ #   - "false"
+  cpuRequest:
+    title: CPU units per node
+    type: string
+    default: "100m"
+  memoryRequest:
+    title: Memory per node
+    type: string
+    default: "512M"
+  cpuLimit:
+    title: CPU units per node (limit)
+    type: string
+    default: "8"
+  memoryLimit:
+    title: Memory per node (limit)
+    type: string
+    default: "512G"
+  volumeSize:
+    title: Disk allocation to core nodes
+    type: string
+    default: "10Gi"
+  volumeStorageClass:
+    title: Storage class for nodes, SSD storage recommended.
+    type: string
+    x-google-marketplace:
+      type: STORAGE_CLASS
+      storageClass:
+        type: SSD
+  # ubbAgentImage:
+  #   type: string
+  #   default: gcr.io/neo4j-k8s-marketplace-public/causal-cluster/ubbagent:$TAG
+  #   x-google-marketplace:
+  #     type: IMAGE
+  # reportingSecret:
+  #   type: string
+  #   default: "XYZ"
+  #   x-google-marketplace:
+  #     type: REPORTING_SECRET
+required:
+- name
+- namespace
+- image
+- nodes
+- volumeStorageClass
