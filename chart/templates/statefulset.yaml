@@ -97,7 +97,7 @@ spec:
         {{- range $key, $val := .Values.env }}
         - name: {{ $key }}
           value: {{ $val | quote }}
-        {{- end}}
+        {{- end }}
         livenessProbe:
           tcpSocket:
             port: 7000
@@ -129,11 +129,11 @@ spec:
           containerPort: {{ default 9200 .Values.config.ports.elasticsearch }}
         - name: transport
           containerPort: {{ default 9300 .Values.config.ports.transport }}
-{{- if .Values.debug.enabled -}}
+{{- if .Values.debug.enabled }}
         - name: jdwp
-          containerPort: {{ default 4242 .Values.config.ports.jdwp }}
+          containerPort: {{ default 4242 .Values.debug.port }}
         args: ["-f", "-d" ]
-{{- end -}}
+{{- end }}
         volumeMounts:
         - name: data
           mountPath: /var/lib/cassandra
