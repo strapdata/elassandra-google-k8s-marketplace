@@ -21,16 +21,6 @@ The solution is composed of two core containers:
 - A set of solution containers deployed under the neo4j GCR. The primary solution container shares the name with the solution (causal cluster)
 and tracks the 3.4 release series, but is not versioned more specifically than that.  See the `causal-cluster` directory.
 
-## Updating git submodules
-
-This repo contains git submodules corresponding to dependent Google code repos.
-You can run the following commands to make sure submodules are updated.
-
-```shell
-git submodule sync --recursive
-git submodule update --recursive --init --force
-```
-
 ## Setting up the GKE environment
 
 See `setup-k8s.sh` for instructions.  These steps are only to be followed for standing up a new testing cluster for the purpose of testing the code in this repo.

@@ -1,7 +1,7 @@
 ## Cassandra image version
 ## ref: https://hub.docker.com/r/library/cassandra/
 image:
-  repo: "strapdata/elassandra"
+  repo: "gcr.io/strapdata-factory/elassandra"
   tag: "6.2.3.8"
   pullPolicy: Always
   ## Specify ImagePullSecrets for Pods
