@@ -1,11 +1,25 @@
-# elassandra-google-k8s-marketplace
+# Elassandra Google k8s Marketplace
 
-This repository contains instructions and files necessary for running Elassandra via 
+![Elassandra Logo](elassandra-logo.png)
+
+This repository contains instructions and files necessary for running [Elassandra](https://github.com/strapdata/elassandra) via 
 [Google's Hosted Kubernetes Marketplace](https://console.cloud.google.com/marketplace/browse?filter=solution-type:k8s).
 
 If you would like setup instructions on how to install this from the GCP Marketplace, or on how to use the application once it is deployed, please consult the [user guide](user-guide/USER-GUIDE.md).
 
-# Maintenance & Development / Getting started
+## Overview
+
+As shown in the following figure, Elassandra nodes are deployed as a kubernetes statefulset, and expose two kubernetes services, one for Apache Cassandra, one for Elasticsearch.
+
+![Elassandra on Kubernetes](resources/gcp-k8s-elassandra.png)
+	
+## Maintenance & Development
+
+The solution is composed of two core containers:
+- The deployment container, which expands the helm chart and applies resources to a running k8s cluster See the `deployer` and `chart` directories.
+- The test container, which is layered on top of the deploy container and runs functional tests to ensure a working elassandra cluster.  See the `apptest` directory.
+- A set of solution containers deployed under the neo4j GCR. The primary solution container shares the name with the solution (causal cluster)
+and tracks the 3.4 release series, but is not versioned more specifically than that.  See the `causal-cluster` directory.
 
 ## Updating git submodules
 
@@ -23,11 +37,6 @@ See `setup-k8s.sh` for instructions.  These steps are only to be followed for st
 
 ## Overview
 
-The solution is composed of two core containers:
-- The deployment container, which expands the helm chart and applies resources to a running k8s cluster See the `deployer` and `chart` directories.
-- The test container, which is layered on top of the deploy container and runs functional tests to ensure a working neo4j cluster.  See the `apptest` directory.
-- A set of solution containers deployed under the neo4j GCR. The primary solution container shares the name with the solution (causal cluster)
-and tracks the 3.4 release series, but is not versioned more specifically than that.  See the `causal-cluster` directory.
 
 ## Building the Deployment Container
  
