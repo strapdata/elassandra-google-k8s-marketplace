@@ -43,80 +43,69 @@ spec:
       # Set env varaiables according to your cluster
 
       Set the following environnement variable according to your deployment:
-      * NAMESPACE={{ .Release.Namespace }}
-      * RELEASE={{ .Release.Name }}
-      * ELASSANDRA_POD=$(kubectl get pods -n $NAMESPACE -l app=elassandra,release=$RELEASE -o jsonpath='{.items[0].metadata.name}')
+      ```bash
+      export NAMESPACE={{ .Release.Namespace }}
+      export APP_INSTANCE_NAME={{ .Release.Name }}
+      export ELASSANDRA_POD=$(kubectl get pods -n $NAMESPACE -l app=elassandra,release=$APP_INSTANCE_NAME -o jsonpath='{.items[0].metadata.name}')
+      ```
 
       # Accessing Cassandra
 
       Check your cassandra cluster status by running the following commands :
-
       ```shell
-      kubectl exec "${APP_INSTANCE_NAME}-elassandra-0" --namespace "${NAMESPACE}" -c elassandra -- nodetool status
+      kubectl exec "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- nodetool status
       ```
 
       Connect to Cassandra using CQLSH:
-
       ```shell
-      kubectl exec "${APP_INSTANCE_NAME}-elassandra-0" --namespace "${NAMESPACE}" -c elassandra -- cqlsh
-      ```
-
-      # Access Cassandra service (internal)
-
-      It is possible to connect to Cassandra without exposing it to public access.
-
-      To do this, please connect from container inside K8s cluster using hostname
-      `$APP_INSTANCE_NAME-elassandra-0.$APP_INSTANCE_NAME-elassandra-svc.$NAMESPACE.svc.cluster.local`
-
-      # Access Cassandra service (via `kubectl port-forward`)
-
-      You could also use a local proxy to access the service that is not exposed publicly.
-      Run the following command in a separate background terminal:
-
-      ```shell
-       kubectl port-forward "${APP_INSTANCE_NAME}-elassandra-0" 9042:9042 --namespace "${NAMESPACE}"
-       ```
-
-      In you main terminal:
-
-      ```shell
-      cqlsh --cqlversion=3.4.4
-      ```
-
-      In the response, you should see a Cassandra welcome message:
-
-      ```shell
-      Use HELP for help.
-      cqlsh>
+      kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- cqlsh
       ```
 
       # Accessing Elasticsearch
 
       Check Elasticsearch cluster state and list indices:
-
       ```
-      kubectl exec "${APP_INSTANCE_NAME}-elassandra-0" --namespace "${NAMESPACE}" -c elassandra -- curl http://localhost:9200/_cluster/state?pretty
-      kubectl exec "${APP_INSTANCE_NAME}-elassandra-0" --namespace "${NAMESPACE}" -c elassandra -- curl http://localhost:9200/_cat/indices?v
+      kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl http://localhost:9200/_cluster/state?pretty
+      kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl http://localhost:9200/_cat/indices?v
       ```
 
       Add a JSON document:
-
       ```
-      kubectl exec "${APP_INSTANCE_NAME}-elassandra-0" --namespace "${NAMESPACE}" -c elassandra -- curl -XPUT -H "Content-Type: application/json" http://localhost:9200/test/mytype/1 -d '{ "foo":"bar" }'
-      ```
-
-      # Deploy a Kibana POD
-
-      Start a kibana pod with the same elasticsearch version as the one provided by elassandra. By default, kibana connects to the elasticsearch service on port 9200.
-
-      ```
-      helm install --namespace "${NAMESPACE}" --name kibana --set image.tag=6.2.3 --set service.externalPort=5601 stable/kibana
+      kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl -XPUT -H "Content-Type: application/json" http://localhost:9200/test/mytype/1 -d '{ "foo":"bar" }'
       ```
 
-      # Deploy filebeat on kuberenetes nodes
+      # Accessing Elassandra using the headless service
 
+      A headless service creates a DNS record for each elassandra pod. For instance :
+      ```
+      $ELASSANDRA_POD.$APP_INSTANCE_NAME.default.svc.cluster.local
+      ```
 
-      For more information, see the elassandra documentation.
+      Clients running inside the same k8s cluster could use thoses records to access both CQL, ES HTTP, ES transport, JMX and thrift protocols.
+
+      # Accessing Elassandra with port forwaring
+
+      You could also use a local proxy to access the service.
+
+      Run the following command in a separate background terminal:
+      ```shell
+      kubectl port-forward "$ELASSANDRA_POD" 9042:9042 9200:9200 --namespace "$NAMESPACE"
+      ```
+
+      In you main terminal :
+      ```shell
+      curl localhost:9200
+      cqlsh --cqlversion=3.4.4
+      ```
+
+      # Deploy a Kibana pod (requires helm installed)
+
+      Start a Kibana pod with the same Elasticsearch version as the one provided by Elassandra. By default, Kibana connects to the Elasticsearch service on port 9200.
+
+      ```
+      helm install --namespace "$NAMESPACE" --name kibana --set image.tag=6.2.3 --set service.externalPort=5601 stable/kibana
+      ```
+
   selector:
     matchLabels:
       app.kubernetes.io/name: "{{ .Release.Name }}"

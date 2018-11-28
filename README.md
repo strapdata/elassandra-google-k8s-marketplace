@@ -5,65 +5,50 @@
 This repository contains instructions and files necessary for running [Elassandra](https://github.com/strapdata/elassandra) via 
 [Google's Hosted Kubernetes Marketplace](https://console.cloud.google.com/marketplace/browse?filter=solution-type:k8s).
 
-If you would like setup instructions on how to install this from the GCP Marketplace, or on how to use the application once it is deployed, please consult the [user guide](user-guide/USER-GUIDE.md).
-
-## Overview
+# Overview
 
 As shown in the following figure, Elassandra nodes are deployed as a kubernetes statefulset, and expose two kubernetes services, one for Apache Cassandra, one for Elasticsearch.
 
 ![Elassandra on Kubernetes](resources/gcp-k8s-elassandra.png)
-	
-## Maintenance & Development
 
-The solution is composed of two core containers:
-- The deployment container, which expands the helm chart and applies resources to a running k8s cluster See the `deployer` and `chart` directories.
-- The test container, which is layered on top of the deploy container and runs functional tests to ensure a working elassandra cluster.  See the `apptest` directory.
-- A set of solution containers deployed under the neo4j GCR. The primary solution container shares the name with the solution (causal cluster)
-and tracks the 3.4 release series, but is not versioned more specifically than that.  See the `causal-cluster` directory.
+# Using the build tools
 
-## Setting up the GKE environment
+## Setup the GKE environment
 
-See `setup-k8s.sh` for instructions.  These steps are only to be followed for standing up a new testing cluster for the purpose of testing the code in this repo.
-
-## Overview
+See `setup-k8s.sh` for instructions.
+These steps are only to be followed for standing up a new testing cluster for the purpose of testing the code in this repo.
 
 
-## Building the Deployment Container
- 
+## Build the container images
+
+The make task `app/build` is used to build two container images :
+* a deployer that transforms our Elassandra helm chart into a GKE manifest
+* an Elassandra image.
+
 ```
+export TAG=6.2.3.8
 make app/build
 ```
 
-## Running the Deployer Container
+## Install the application
 
-Using the marketplace-k8s-app-tools script to launch the deployment container mimics how google's
-k8s marketplace does it with the UI.
-
-The make task `make app/install` accomplishes this, below is a variant with what that does:
+The make task `make app/install` simulates a google marketplace environment and deploys the elassandra application.
 
 ```
-SOLUTION_VERSION=$(cat chart/Chart.yaml | grep version: | sed 's/.*: //g')
-DEPLOYER_IMAGE=gcr.io/neo4j-k8s-marketplace-public/causal-cluster/deployer:$SOLUTION_VERSION
-APP_INSTANCE_NAME="neo4j-a$(head -c 2 /dev/urandom | base64 - | sed 's/[^A-Za-z0-9]/x/g' | tr '[:upper:]' '[:lower:]')"
-vendor/marketplace-k8s-app-tools/scripts/start.sh \
-   --deployer=$DEPLOYER_IMAGE \
-   --parameters='{"name":"'$APP_INSTANCE_NAME'","namespace":"default","coreServers":"3", "cpuRequest":"100m", "memoryRequest": "1Gi", "volumeSize": "20Gi", 
-   "readReplicaServers":"1", "image": "gcr.io/neo4j-k8s-marketplace-public/causal-cluster:'$SOLUTION_VERSION'"}'
+make app/install
 ```
 
-Once deployed, the instructions above on getting logs and running cypher-shell still apply.
+Once deployed, the application will appears on the google cloud console.
 
-To stop/delete, assuming that the generated name was `neo4j-qy7n`:
-
-```
-export MY_APP=neo4j-qy7n
-kubectl delete application/$MY_APP
+To stop/delete, use the make tasks `make app/uninstall`. You also need to delete the pvc : 
+```bash
+make app/uninstall
+for i in 0 1 2; do
+  kubectl delete pvc data-$NAME-$i
+done
 ```
 
 ## Running Tests
-
-- Build the test conainer `make app/build-test`
-- Run tests
 
 ```
 make app/verify
@@ -71,71 +56,95 @@ make app/verify
 
 That app/verify target, like many others, is provided for by Google's
 marketplace tools repo; consult app.Makefile in that repo for full details. 
-Behind the scenes, it invokes `driver.sh` to deploy, wait for successful deploy,
-and launch the testing container.
 
-Actual test contents are specified by the resources in `tester.yaml` in the apptest directory.
+# Getting started with Elassandra
 
-## How to run Backups
+## Set env varaiables according to your cluster
 
-- `make app/backup` to build the relevant docker container
-- Customize `backup/backup.yaml` as appropriate
-- kubectl apply -f backup/backup.yaml
-
-For further details, consult the README file in the backup directory.
-
-## Running from your Local Machine
-
-These instructions mimic what the deployment container does.
-
-### Helm Expansion
-
-```
-helm template chart/ \
-   --set namespace=default \
-   --set image=gcr.io/neo4j-k8s-marketplace-public/causal-cluster:3.4 \
-   --set name=my-graph \
-   --set neo4jPassword=mySecretPassword \
-   --set authEnabled=true \
-   --set coreServers=3 \
-   --set readReplicaServers=0 \
-   --set cpuRequest=200m \
-   --set memoryRequest=1Gi \
-   --set volumeSize=2Gi \
-   --set acceptLicenseAgreement=yes > expanded.yaml
+Set the following environnement variable according to your deployment:
+```bash
+export NAMESPACE=default
+export APP_INSTANCE_NAME=elassandra-1
+export ELASSANDRA_POD=$(kubectl get pods -n $NAMESPACE -l app=elassandra,release=$APP_INSTANCE_NAME -o jsonpath='{.items[0].metadata.name}')
 ```
 
-### Applying to Cluster (Manual)
+## Accessing Cassandra
 
-```kubectl apply -f expanded.yaml```
-
-### Discovering the Password to your Cluster
-
-It's stored in a secret, base64 encoded.  With proper access you can unmask the password
-like this:
-
-```
-kubectl get secrets $APP_INSTANCE_NAME-neo4j-secrets -o yaml | grep neo4j-password: | sed 's/.*neo4j-password: *//' | base64 --decode
+Check your cassandra cluster status by running the following commands :
+```shell
+kubectl exec "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- nodetool status
 ```
 
-### Connecting to an Instance
-
-```
-# Assumes APP_INSTANCE_NAME, SOLUTION_VERSION are set.
-# When deploying from the marketplace, if you deploy as "mygraph",
-# then you will have a corresponding application/mygraph
-
-kubectl run -it --rm cypher-shell \
-   --image=gcr.io/cloud-marketplace/neo4j-public/causal-cluster-k8s:$SOLUTION_VERSION \
-   --restart=Never \
-   --namespace=default \
-   --command -- ./bin/cypher-shell -u neo4j \
-   -p "$(kubectl get secrets $APP_INSTANCE_NAME-neo4j-secrets -o yaml | grep neo4j-password: | sed 's/.*neo4j-password: *//' | base64 --decode)" \
-   -a $APP_INSTANCE_NAME-neo4j.default.svc.cluster.local "call dbms.cluster.overview()"
+Connect to Cassandra using CQLSH:
+```shell
+kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- cqlsh
 ```
 
-### Getting Logs
+## Accessing Elasticsearch
+
+Check Elasticsearch cluster state and list indices:
+```
+kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl http://localhost:9200/_cluster/state?pretty
+kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl http://localhost:9200/_cat/indices?v
+```
+
+Add a JSON document:
+```
+kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl -XPUT -H "Content-Type: application/json" http://localhost:9200/test/mytype/1 -d '{ "foo":"bar" }'
+```
+
+## Accessing Elassandra using the headless service
+
+A headless service creates a DNS record for each elassandra pod. For instance :
+```
+$ELASSANDRA_POD.$APP_INSTANCE_NAME.default.svc.cluster.local
+```
+
+Clients running inside the same k8s cluster could use thoses records to access both CQL, ES HTTP, ES transport, JMX and thrift protocols.
+
+## Accessing Elassandra with port forwaring
+
+You could also use a local proxy to access the service.
+
+Run the following command in a separate background terminal:
+```shell
+kubectl port-forward "$ELASSANDRA_POD" 9042:9042 9200:9200 --namespace "$NAMESPACE"
+```
+
+In you main terminal :
+```shell
+curl localhost:9200
+cqlsh --cqlversion=3.4.4
+```
+
+## Deploy Kibana (requires helm installed)
+
+Start a Kibana pod with the same Elasticsearch version as the one provided by Elassandra. By default, Kibana connects to the Elasticsearch service on port 9200.
 
 ```
-kubectl logs -l "app=neo4j,component=core"
+helm install --namespace "$NAMESPACE" --name kibana --set image.tag=6.2.3 --set service.externalPort=5601 stable/kibana
+```
+
+To delete kibana :
+```
+helm delete kibana --purge
+```
+
+## Deploy Filebeat
+
+Elassandra can be used beside Filebeat and Kibana to monitor k8s logs :
+```
+kubectl create -f extra/filebeat-kubernetes.yaml
+```
+
+Open kibana to see the logs flowing to Elassandra :
+```
+export POD_NAME=$(kubectl get pods --namespace default -l "app=kibana,release=kibana" -o jsonpath="{.items[0].metadata.name}")
+echo "Visit http://127.0.0.1:5601 to use Kibana"
+kubectl port-forward --namespace default $POD_NAME 5601:5601
+```
+
+To delete filebeat :
+```
+kubectl delete -f extra/filebeat-kubernetes.yaml
 ```

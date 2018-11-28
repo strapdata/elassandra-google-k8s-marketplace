@@ -47,7 +47,7 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: {{ template "elassandra.fullname" . }}
+      - name: elassandra
         image: "{{ .Values.image.name }}"
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         terminationMessagePolicy: "FallbackToLogsOnError"

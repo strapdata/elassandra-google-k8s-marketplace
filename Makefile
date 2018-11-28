@@ -10,7 +10,7 @@ REGISTRY = gcr.io/strapdata-factory
 
 UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
 APP_MAIN_IMAGE = $(REGISTRY)/elassandra:$(TAG)
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)-3
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)-4
 
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
