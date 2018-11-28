@@ -1,17 +1,22 @@
-include app.Makefile
-include crd.Makefile
-include gcloud.Makefile
-include var.Makefile
+include tools/gcloud.Makefile
+include tools/crd.Makefile
+include tools/var.Makefile
+include tools/app.Makefile
 
 TAG ?= 6.2.3.8
 $(info ---- TAG = $(TAG))
 
 REGISTRY = gcr.io/strapdata-factory
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)
+
+UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
+APP_MAIN_IMAGE = $(REGISTRY)/elassandra:$(TAG)
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)-3
+
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
-  "APP_INSTANCE_NAME": "$(NAME)", \
-  "NAMESPACE": "$(NAMESPACE)" \
+  "name": "$(NAME)", \
+  "namespace": "$(NAMESPACE)", \
+  "image.name": "$(APP_MAIN_IMAGE)" \
 }
 APP_TEST_PARAMETERS ?= {}
 
@@ -25,7 +30,7 @@ app/build:: .build/elassandra/deployer \
 
 
 .build/elassandra/deployer: deployer/* \
-                           chart/* \
+                           chart/elassandra/* \
                            schema.yaml \
                            .build/var/APP_DEPLOYER_IMAGE \
                            .build/var/MARKETPLACE_TOOLS_TAG \
@@ -33,9 +38,6 @@ app/build:: .build/elassandra/deployer \
                            .build/var/TAG \
                            | .build/elassandra
 	docker build \
-	    --build-arg REGISTRY="$(REGISTRY)/elassandra" \
-	    --build-arg TAG="$(TAG)" \
-	    --build-arg MARKETPLACE_TOOLS_TAG="$(MARKETPLACE_TOOLS_TAG)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    -f deployer/Dockerfile \
 	    .
@@ -48,9 +50,9 @@ app/build:: .build/elassandra/deployer \
                             .build/var/TAG \
                             | .build/elassandra
 	docker build \
-	    --build-arg BASE_IMAGE="container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)" \
-	    --tag "$(REGISTRY)/elassandra:$(TAG)" \
+	    --build-arg BASE_IMAGE="$(UPSTREAM_IMAGE)" \
+	    --tag "$(APP_MAIN_IMAGE)" \
 	    -f elassandra/Dockerfile \
 	    .
-	docker push "$(REGISTRY)/elassandra:$(TAG)"
+	docker push "$(APP_MAIN_IMAGE)"
 	@touch "$@"

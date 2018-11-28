@@ -8,64 +8,72 @@ properties:
     type: string
     x-google-marketplace:
       type: NAMESPACE
-  image:
+  image.name:
     type: string
-    default: $REGISTRY:$TAG
+    default: gcr.io/strapdata-factory/elassandra:6.2.3.8
     x-google-marketplace:
       type: IMAGE
-  nodes:
+
+  config.cluster_name:
+    title: Name of the elassandra cluster
+    type: string
+    default: "elassandra"
+
+  config.cluster_size:
     title: Number of elassandra pods
     type: integer
     default: 3
     minimum: 1
-    maximum: 30
- # authEnabled:
- #   title: Enable SSL Encryption and Authorization
- #   type: string
- #   default: "true"
- #   enum:
- #   - "true"
- #   - "false"
-  cpuRequest:
-    title: CPU units per node
-    type: string
-    default: "100m"
-  memoryRequest:
-    title: Memory per node
-    type: string
-    default: "512M"
-  cpuLimit:
-    title: CPU units per node (limit)
-    type: string
-    default: "8"
-  memoryLimit:
-    title: Memory per node (limit)
-    type: string
-    default: "512G"
-  volumeSize:
-    title: Disk allocation to core nodes
-    type: string
-    default: "10Gi"
-  volumeStorageClass:
+    maximum: 1000
+
+  elasticsearch.enabled:
+    title: enable/disable elasticsearch
+    type: boolean
+    default: true
+
+  persistence.storageClass:
     title: Storage class for nodes, SSD storage recommended.
     type: string
     x-google-marketplace:
       type: STORAGE_CLASS
       storageClass:
         type: SSD
-  # ubbAgentImage:
-  #   type: string
-  #   default: gcr.io/neo4j-k8s-marketplace-public/causal-cluster/ubbagent:$TAG
-  #   x-google-marketplace:
-  #     type: IMAGE
-  # reportingSecret:
-  #   type: string
-  #   default: "XYZ"
-  #   x-google-marketplace:
-  #     type: REPORTING_SECRET
+
+  persistence.size:
+    title: Disk allocation to nodes
+    type: string
+    default: "10Gi"
+
+  resources.requests.cpu:
+    title: CPU units per node
+    type: string
+    default: "500m"
+  resources.requests.memory:
+    title: Memory per node
+    type: string
+    default: "4Gi"
+  resources.limits.cpu:
+    title: CPU units per node (limit)
+    type: string
+    default: "8"
+  resources.limits.memory:
+    title: Memory per node (limit)
+    type: string
+    default: "512Gi"
+
+  config.max_heap_size:
+    title: Recommended max heap size is 1/2 of system memory
+    type: string
+    defaut: 2048M
+
+  config.heap_new_size:
+    title: Recommended heap new size is 1/4 of max heap size
+    type: string
+    defaut: 512M
+
 required:
 - name
 - namespace
-- image
-- nodes
-- volumeStorageClass
+- image.name
+- config.cluster_size
+- persistence.storageClass

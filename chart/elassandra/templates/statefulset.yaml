@@ -48,7 +48,7 @@ spec:
           privileged: true
       containers:
       - name: {{ template "elassandra.fullname" . }}
-        image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.name }}"
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         terminationMessagePolicy: "FallbackToLogsOnError"
         securityContext:
@@ -81,7 +81,7 @@ spec:
         - name: CASSANDRA_DAEMON
           value: {{- if .Values.elasticsearch.enabled }} "org.apache.cassandra.service.ElassandraDaemon" {{ else }} "org.apache.cassandra.service.CassandraDaemon" {{- end }}
         - name: JVM_DEBUG_PORT
-          value: {{ default 4242 .Values.config.ports.jdwp }}
+          value: {{ default "4242" .Values.debug.port | quote }}
         - name: POD_IP
           valueFrom:
             fieldRef:

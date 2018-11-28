@@ -1,6 +1,6 @@
 # Elassandra Google k8s Marketplace
 
-![Elassandra Logo](elassandra-logo.png)
+![Elassandra Logo](resources/elassandra-logo.png)
 
 This repository contains instructions and files necessary for running [Elassandra](https://github.com/strapdata/elassandra) via 
 [Google's Hosted Kubernetes Marketplace](https://console.cloud.google.com/marketplace/browse?filter=solution-type:k8s).

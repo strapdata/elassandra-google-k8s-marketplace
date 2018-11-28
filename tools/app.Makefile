@@ -8,14 +8,14 @@ include $(makefile_dir)/common.Makefile
 include $(makefile_dir)/var.Makefile
 
 
-# Extracts the name property from APP_PARAMETERS.
+# Extracts the name property from APP_PARAMETERS. !!!DOES NOT WORK!!!
 define name_parameter
 $(shell echo '$(APP_PARAMETERS)' \
     | docker run -i --entrypoint=/bin/print_config.py --rm $(APP_DEPLOYER_IMAGE) --values_mode stdin --xtype NAME)
 endef
 
 
-# Extracts the namespace property from APP_PARAMETERS.
+# Extracts the namespace property from APP_PARAMETERS. !!!DOES NOT WORK!!!
 define namespace_parameter
 $(shell echo '$(APP_PARAMETERS)' \
     | docker run -i --entrypoint=/bin/print_config.py --rm $(APP_DEPLOYER_IMAGE) --values_mode stdin --xtype NAMESPACE)
@@ -93,8 +93,8 @@ app/install-test:: app/build \
 app/uninstall: .build/var/APP_DEPLOYER_IMAGE \
                .build/var/APP_PARAMETERS
 	$(call print_target)
-	kubectl delete 'application/$(call name_parameter)' \
-	    --namespace='$(call namespace_parameter)' \
+	kubectl delete 'application/$(NAME)' \
+	    --namespace='$(NAMESPACE)' \
 	    --ignore-not-found
 
 
