@@ -140,7 +140,7 @@ curl localhost:9200
 cqlsh --cqlversion=3.4.4
 ```
 
-## Deploy Kibana (requires helm installed)
+## Deploying Kibana (requires helm installed)
 
 Start a Kibana pod with the same Elasticsearch version as the one provided by Elassandra. By default, Kibana connects to the Elasticsearch service on port 9200.
 
@@ -153,7 +153,7 @@ To delete Kibana :
 helm delete kibana --purge
 ```
 
-## Deploy Filebeat
+## Deploying Filebeat
 
 Elassandra can be used beside Filebeat and Kibana to monitor k8s logs :
 ```
