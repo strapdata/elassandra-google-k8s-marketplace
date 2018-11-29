@@ -32,7 +32,7 @@ make app/build
 
 ## Install the application
 
-The make task `make app/install` simulates a google marketplace environment and deploys the elassandra application.
+The make task `app/install` simulates a google marketplace environment and deploys the elassandra application.
 
 ```
 make app/install
@@ -48,20 +48,43 @@ for i in 0 1 2; do
 done
 ```
 
+## Configure the application
+
+The `schema.yml` file contains parameters available to the GKE end-user.
+
+In order to specify values for these parameters, you can either defines environment variables or edit the head of the `Makefile`:
+```Makefile
+APP_PARAMETERS ?= { \
+  "name": "$(NAME)", \
+  "namespace": "$(NAMESPACE)", \
+  "image.name": "$(APP_MAIN_IMAGE)" \
+}
+```
+
+For instance if you wish to increase the disk size :
+```Makefile
+APP_PARAMETERS ?= { \
+  "name": "$(NAME)", \
+  "namespace": "$(NAMESPACE)", \
+  "image.name": "$(APP_MAIN_IMAGE)" \
+  "persistence.size": "512Gi" \
+}
+```
+
 ## Running Tests
 
 ```
 make app/verify
 ```
 
-That app/verify target, like many others, is provided for by Google's
+That `app/verify` target, like many others, is provided for by Google's
 marketplace tools repo; consult app.Makefile in that repo for full details. 
 
 # Getting started with Elassandra
 
-## Set env varaiables according to your cluster
+## Set env variables according to your cluster
 
-Set the following environnement variable according to your deployment:
+Set the following environment variables according to your deployment:
 ```bash
 export NAMESPACE=default
 export APP_INSTANCE_NAME=elassandra-1
@@ -70,12 +93,12 @@ export ELASSANDRA_POD=$(kubectl get pods -n $NAMESPACE -l app=elassandra,release
 
 ## Accessing Cassandra
 
-Check your cassandra cluster status by running the following commands :
+Check your cassandra cluster status by running the following command :
 ```shell
 kubectl exec "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- nodetool status
 ```
 
-Connect to Cassandra using CQLSH:
+Connect to Cassandra using cqlsh:
 ```shell
 kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- cqlsh
 ```
@@ -102,7 +125,7 @@ $ELASSANDRA_POD.$APP_INSTANCE_NAME.default.svc.cluster.local
 
 Clients running inside the same k8s cluster could use thoses records to access both CQL, ES HTTP, ES transport, JMX and thrift protocols.
 
-## Accessing Elassandra with port forwaring
+## Accessing Elassandra with port forwarding
 
 You could also use a local proxy to access the service.
 
@@ -111,7 +134,7 @@ Run the following command in a separate background terminal:
 kubectl port-forward "$ELASSANDRA_POD" 9042:9042 9200:9200 --namespace "$NAMESPACE"
 ```
 
-In you main terminal :
+In you main terminal (requires curl and cqlsh commands):
 ```shell
 curl localhost:9200
 cqlsh --cqlversion=3.4.4
@@ -125,7 +148,7 @@ Start a Kibana pod with the same Elasticsearch version as the one provided by El
 helm install --namespace "$NAMESPACE" --name kibana --set image.tag=6.2.3 --set service.externalPort=5601 stable/kibana
 ```
 
-To delete kibana :
+To delete Kibana :
 ```
 helm delete kibana --purge
 ```
@@ -137,14 +160,14 @@ Elassandra can be used beside Filebeat and Kibana to monitor k8s logs :
 kubectl create -f extra/filebeat-kubernetes.yaml
 ```
 
-Open kibana to see the logs flowing to Elassandra :
+Open Kibana to see the logs flowing to Elassandra :
 ```
 export POD_NAME=$(kubectl get pods --namespace default -l "app=kibana,release=kibana" -o jsonpath="{.items[0].metadata.name}")
 echo "Visit http://127.0.0.1:5601 to use Kibana"
 kubectl port-forward --namespace default $POD_NAME 5601:5601
 ```
 
-To delete filebeat :
+To delete Filebeat :
 ```
 kubectl delete -f extra/filebeat-kubernetes.yaml
 ```

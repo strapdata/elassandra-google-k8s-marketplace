@@ -40,9 +40,9 @@ spec:
 
       Upon launching this application, it may take up to a few minutes for your cluster pods to be deployed, and for the elassandra cluster to fully form and become available.
 
-      # Set env varaiables according to your cluster
+      # Set env variables according to your cluster
 
-      Set the following environnement variable according to your deployment:
+      Set the following environnement variables according to your deployment:
       ```bash
       export NAMESPACE={{ .Release.Namespace }}
       export APP_INSTANCE_NAME={{ .Release.Name }}
@@ -83,7 +83,7 @@ spec:
 
       Clients running inside the same k8s cluster could use thoses records to access both CQL, ES HTTP, ES transport, JMX and thrift protocols.
 
-      # Accessing Elassandra with port forwaring
+      # Accessing Elassandra with port forwarding
 
       You could also use a local proxy to access the service.
 
