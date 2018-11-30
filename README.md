@@ -52,7 +52,7 @@ done
 
 The `schema.yml` file contains parameters available to the GKE end-user.
 
-In order to specify values for these parameters, you can either defines environment variables or edit the head of the `Makefile`:
+In order to specify values for these parameters, you can either define environment variables or edit the `Makefile`:
 ```Makefile
 APP_PARAMETERS ?= { \
   "name": "$(NAME)", \
