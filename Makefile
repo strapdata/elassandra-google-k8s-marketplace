@@ -39,6 +39,8 @@ app/build:: .build/elassandra/deployer \
                            .build/var/TAG \
                            | .build/elassandra
 	docker build \
+	    --build-arg REGISTRY="$(REGISTRY)/elassandra" \
+	    --build-arg TAG="$(TAG)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    -f deployer/Dockerfile \
 	    .
