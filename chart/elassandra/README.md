@@ -25,10 +25,10 @@ pod/elassandra-0              1/1       Running   0          51m
 pod/elassandra-1              1/1       Running   0          50m
 pod/elassandra-2              1/1       Running   0          49m
 
-NAME                    TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                                          AGE
-service/cassandra       ClusterIP   10.0.174.13    <none>        9042/TCP,9160/TCP                                                51m
-service/elassandra      ClusterIP   None           <none>        7199/TCP,7000/TCP,7001/TCP,9300/TCP,9042/TCP,9160/TCP,9200/TCP   51m
-service/elasticsearch   ClusterIP   10.0.131.15    <none>        9200/TCP                                                         51m
+NAME                               TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                                          AGE
+service/elassandra-cassandra       ClusterIP   10.0.174.13    <none>        9042/TCP,9160/TCP                                                51m
+service/elassandra                 ClusterIP   None           <none>        7199/TCP,7000/TCP,7001/TCP,9300/TCP,9042/TCP,9160/TCP,9200/TCP   51m
+service/elassandra-elasticsearch   ClusterIP   10.0.131.15    <none>        9200/TCP                                                         51m
 
 NAME                          DESIRED   CURRENT   AGE
 statefulset.apps/elassandra   3         3         51m
