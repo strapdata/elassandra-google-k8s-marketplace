@@ -9,8 +9,8 @@ $(info ---- TAG = $(TAG))
 # REGISTRY ?= gcr.io/strapdata-factory
 REGISTRY = gcr.io/strapdata-gcp-partnership
 
-UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
-APP_MAIN_IMAGE ?= $(REGISTRY)/elassandra:$(TAG)-rc
+UPSTREAM_IMAGE = docker.io/strapdata/elassandra:$(TAG)
+APP_MAIN_IMAGE ?= $(REGISTRY)/elassandra:$(TAG)
 APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)-rc
 
 NAME ?= elassandra-1
