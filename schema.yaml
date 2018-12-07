@@ -10,6 +10,7 @@ properties:
       type: NAMESPACE
   image.name:
     type: string
+    default: $REGISTRY:$TAG
     x-google-marketplace:
       type: IMAGE
 
