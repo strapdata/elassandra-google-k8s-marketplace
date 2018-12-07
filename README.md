@@ -149,6 +149,20 @@ curl localhost:9200
 cqlsh --cqlversion=3.4.4
 ```
 
+### Setup HELM
+
+Install [HELM](https://docs.helm.sh/using_helm/#installing-helm) if needed.
+Check if the tiller (HELM pod) is installed, if not initialize HELM:
+
+    helm init
+    kubectl -n kube-system get po || helm init
+
+Authorize tiller to deploy service account:
+
+    kubectl create serviceaccount --namespace kube-system tiller
+    kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+    kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
+        
 ### Deploying Kibana (requires helm installed)
 
 Start a Kibana pod with the same Elasticsearch version as the one provided by Elassandra. By default, Kibana connects to the Elasticsearch service on port 9200.
