@@ -11,7 +11,7 @@ REGISTRY = gcr.io/strapdata-gcp-partnership
 
 UPSTREAM_IMAGE = docker.io/strapdata/elassandra:$(TAG)
 APP_MAIN_IMAGE ?= $(REGISTRY)/elassandra:$(TAG)
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)-rc
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)
 
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
