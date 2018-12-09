@@ -2,7 +2,7 @@
 ## ref: https://hub.docker.com/r/library/cassandra/
 image:
   repo: "strapdata/elassandra:6.2.3.8"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   ## Specify ImagePullSecrets for Pods
   ## ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
   # pullSecrets: myregistrykey
@@ -42,7 +42,7 @@ resources: {}
 config:
   cluster_name: elassandra
   cluster_size: 3
-  seed_size: 2
+  seed_size: 1
   num_tokens: 16
   # If you want Cassandra to use this datacenter and rack name,
   # you need to set endpoint_snitch to GossipingPropertyFileSnitch.
