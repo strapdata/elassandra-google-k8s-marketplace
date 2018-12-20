@@ -54,7 +54,7 @@ current_status
 
 wait_for_healthy_sts
 
-info "Checking if required files exists"
+info "Checking if required files exist"
 if [[ ! -f backup-schema.cql ]]; then
   info "Missing backup-schema.cql"
   exit 1
