@@ -24,7 +24,7 @@ if [[ ! -f "${SCRIPT_DIR}/util.sh" ]]; then
 fi
 
 USAGE='
-Upgrade script to Cassandra cluster running on K8s. Gracefully shuting down,
+Upgrade script to Cassandra cluster running on K8s. Gracefully????? shuting down,
 recreating new pod and waiting for healthy status of the cluster.
 
 Parameters:
