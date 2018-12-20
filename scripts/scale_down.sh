@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# While scaling down we want to gracefully remove Cassandra node from cluster,
-# moving all data that belong to that node to other nodes and stop all writes
+# While scaling down we want to gracefully?????? remove Cassandra node from cluster,
+# moving all data that belongs to that node to other nodes and stop all writes
 # to this node.
 #
-# To do this, we use `nodetool decommission` command, that marks node as 'to be
+# To do this, we use a `nodetool decommission` command, that marks the node as 'to be
 # removed', also on disk. This disk cannot be used again to connect to this
-# cluster, as Cassandra has marked that this disk belongs to decommissioned
+# cluster, as Cassandra has marked this disk as belonging to a decommissioned
 # node. Thus, we need to delete this disk, removing PV and PVC.
 
 set -euo pipefail
@@ -33,7 +33,7 @@ if [[ ! -f "${SCRIPT_DIR}/util.sh" ]]; then
 fi
 
 USAGE='
-This script scales down Cassandra cluster to lower number of instances:
+This script scales down the Cassandra cluster to a lower number of instances:
 
 Parameters:
 --desired_number       (Required) Desired number of instances
