@@ -24,7 +24,7 @@ if [[ ! -f "${SCRIPT_DIR}/util.sh" ]]; then
 fi
 
 USAGE='
-This script creates a backup files from Cassandra cluster. Following files
+This script creates a backup file from Cassandra cluster. Following files
 are generated:
 - multiple backup .tar.gz archives, containing raw data from Cassandra. For each
   Cassandra node one archive is generated
