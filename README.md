@@ -7,7 +7,7 @@ This repository contains instructions and files necessary for running [Elassandr
 
 # Overview
 
-As shown in the following figure, Elassandra nodes are deployed as a kubernetes statefulset, and expose two kubernetes services, one for Apache Cassandra, one for Elasticsearch.
+As shown in the figure below, Elassandra nodes are deployed as a kubernetes statefulset, and expose two kubernetes services, one for Apache Cassandra and one for Elasticsearch.
 
 ![Elassandra on Kubernetes](resources/gcp-k8s-elassandra.png)
 
@@ -17,13 +17,13 @@ As shown in the following figure, Elassandra nodes are deployed as a kubernetes 
   
 ### Setup the GKE environment
 
-See `setup-k8s.sh` for instructions.
-These steps are only to be followed for standing up a new testing cluster for the purpose of testing the code in this repo.
+Refer to `setup-k8s.sh` for instructions.
+These steps are only to be followed when standing up a new testing cluster for the purpose of testing the code in the repo.
 
 
 ### Build the container images
 
-The make task `app/build` is used to build two container images :
+The make task `app/build` is used for building two container images :
 * a deployer that transforms our Elassandra helm chart into a GKE manifest
 * an Elassandra image.
 
@@ -34,13 +34,13 @@ make app/build
 
 ### Install the application
 
-The make task `app/install` simulates a google marketplace environment and deploys the elassandra application.
+The make task `app/install` simulates a google marketplace environment and deploys the Elassandra application.
 
 ```
 make app/install
 ```
 
-Once deployed, the application will appears on the google cloud console.
+Once deployed, the application will appear on the google cloud console.
 
 To stop/delete, use the make tasks `make app/uninstall`. You also need to delete the pvc : 
 ```bash
@@ -54,7 +54,7 @@ done
 
 The `schema.yml` file contains parameters available to the GKE end-user.
 
-In order to specify values for these parameters, you can either define environment variables or edit the `Makefile`:
+To specify values for these parameters, you can either define the environment variables or edit the `Makefile`:
 ```Makefile
 APP_PARAMETERS ?= { \
   "name": "$(NAME)", \
@@ -80,13 +80,13 @@ make app/verify
 ```
 
 That `app/verify` target, like many others, is provided for by Google's
-marketplace tools repo; consult app.Makefile in that repo for full details. 
+marketplace tools repo; for further details, please see app.Makefile in that repo for full details. 
 
 # Getting started with Elassandra
 
-### Set your GKE environment
+### Set up your GKE environment
 
-Setup your environment as describe in [GKE quickstart](https://cloud.google.com/kubernetes-engine/docs/quickstart):
+Set up your environment as describe in [GKE quickstart](https://cloud.google.com/kubernetes-engine/docs/quickstart):
 ```
 gcloud config set project <your-gcp-project>
 gcloud config set compute/zone <your-zone>
@@ -95,7 +95,7 @@ gcloud container clusters get-credentials <your-gke-cluster-name>
 	
 ### Set env variables according to your cluster
 
-Set the following environment variables according to your deployment:
+Set up the following environment variables in accordance with your deployment:
 ```
 export NAMESPACE=default
 export APP_INSTANCE_NAME=elassandra-1
@@ -104,7 +104,7 @@ export ELASSANDRA_POD=$(kubectl get pods -n $NAMESPACE -l app=elassandra,release
 
 ### Accessing Cassandra
 
-Check your cassandra cluster status by running the following command :
+Check your Cassandra cluster status by running the following command :
 ```shell
 kubectl exec "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- nodetool status
 ```
@@ -116,7 +116,7 @@ kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- cql
 
 ### Accessing Elasticsearch
 
-Check Elasticsearch cluster state and list indices:
+Check Elasticsearch cluster state and list of indices:
 ```
 kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl http://localhost:9200/_cluster/state?pretty
 kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- curl http://localhost:9200/_cat/indices?v
@@ -129,23 +129,23 @@ kubectl exec -it "$ELASSANDRA_POD" --namespace "$NAMESPACE" -c elassandra -- cur
 
 ### Accessing Elassandra using the headless service
 
-A headless service creates a DNS record for each elassandra pod. For instance :
+A headless service creates a DNS record for each Elassandra pod. For instance :
 ```
 $ELASSANDRA_POD.$APP_INSTANCE_NAME.default.svc.cluster.local
 ```
 
-Clients running inside the same k8s cluster could use thoses records to access both CQL, ES HTTP, ES transport, JMX and thrift protocols (thrift is not supported with elasticsearch).
+Clients running inside the same k8s cluster could use thoses records to access both CQL, ES HTTP, ES transport, JMX and thrift protocols (thrift is not supported with Elasticsearch).
 
 ### Accessing Elassandra with port forwarding
 
-You could also use a local proxy to access the service.
+A local proxy can also be used to access the service.
 
 Run the following command in a separate background terminal:
 ```shell
 kubectl port-forward "$ELASSANDRA_POD" 9042:9042 9200:9200 --namespace "$NAMESPACE"
 ```
 
-In you main terminal (requires curl and cqlsh commands):
+On you main terminal (requires curl and cqlsh commands):
 ```shell
 curl localhost:9200
 cqlsh --cqlversion=3.4.4
@@ -165,7 +165,7 @@ Authorize tiller to deploy service account:
     kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
     kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
         
-### Deploying Kibana (requires helm installed)
+### Deploying Kibana (requires helm to be installed)
 
 Start a Kibana pod with the same Elasticsearch version as the one provided by Elassandra. By default, Kibana connects to the Elasticsearch service on port 9200.
 
@@ -204,9 +204,11 @@ kubectl delete -f extra/filebeat-kubernetes.yaml
 
 ### Overview
 
-Elassandra can snapshot Elasticsearch indices when the index settings **index.snapshot_with_sstable=true**. In this case, snapshoting a Cassandra keyspace also create a snapshot of lucene files located in *$CASSANDRA_DATA/elasticsearch.data/<cluster_name>/nodes/0/indices/<index_name>/0/index/(_\*|segment\*)*.
+Elassandra can snapshot Elasticsearch indices when the index settings **index.snapshot_with_sstable=true**. In this case, snapshotting a Cassandra keyspace also creates a snapshot of Lucene files located in *$CASSANDRA_DATA/elasticsearch.data/<cluster_name>/nodes/0/indices/<index_name>/0/index/(_\*|segment\*)*.
 
-**IMPORTANT**: Since Elassandra version 6.2.3.8+, Elasticsearch mapping is stored as binary in the Cassandra schema as table extensions, but **cqlsh** does not display it when issuing DESCRIBE KEYSPACE or DESCRIBE TABLE. Nevertheless, when snapshoting a table, Cassandra backups the CQL schema in a file **schema.cql** including table extensions. So we recommand to always snapshot the table **elastic_admin.metadata** to backup the elasticsearch metadata. Here is an example of such **schema.cql** generated by *nodetool snapshot elastic_admin*  in /var/lib/cassandra/data/data/elastic_admin/metadata-d05583c0f9a711e88d516196b00e4901/snapshots/1544183249126/schema.cql:
+**IMPORTANT**: Since Elassandra version 6.2.3.8+, Elasticsearch mapping is stored as binary in the Cassandra schema as table extensions, but **cqlsh** does not display it when issuing DESCRIBE KEYSPACE or DESCRIBE TABLE. Nevertheless, when snapshooting a table, Cassandra backups the CQL schema in a file **schema.cql** including table extensions. Therefore it is recommended to always snapshooting the table **elastic_admin.metadata** to backup the Elasticsearch metadata. 
+
+Here is an example of such **schema.cql** generated by *nodetool snapshot elastic_admin*  in /var/lib/cassandra/data/data/elastic_admin/metadata-d05583c0f9a711e88d516196b00e4901/snapshots/1544183249126/schema.cql:
 
 	CREATE TABLE IF NOT EXISTS elastic_admin.metadata (
 		cluster_name text PRIMARY KEY,
@@ -232,9 +234,9 @@ Elassandra can snapshot Elasticsearch indices when the index settings **index.sn
 
 ### Backing up your Eassandra data
 
-These steps back up your Cassandra data, database schema, and token information.
+The following steps will allow you to back up your Cassandra data, database schema, and token information.
 
-Set your installation name and Kubernetes namespace:
+Set up your installation name and Kubernetes namespace:
 
 ```shell
 export APP_INSTANCE_NAME=elassandra-1
@@ -243,11 +245,11 @@ export NAMESPACE=default
 
 The script [`scripts/backup.sh`](scripts/backup.sh) does the following:
 
-1. Uploads the [`make_backup.sh`](scripts/make_backup.sh) script to each container.
+1. Uploads the [`make_backup.sh`](scripts/make_backup.sh) script for each container.
 2. Runs the script to create a backup package, using the `nodetool snapshot` command.
-2. Downloads the backup to your machine.
+2. Downloads the backup on your machine.
 
-After you run the script, the `backup-$NODENUMBER.tar.gz` file contains the backup for each node.
+After running the script, the `backup-$NODENUMBER.tar.gz` file will contain the backup for each node.
 
 Run the script using the following options:
 
@@ -262,22 +264,22 @@ cluster, one schema and one token ring is backed up.
 
 ### Restoring in place
 
-You can restore SSTables and Elasticsearch Lucene files on the node where the backup was done, because data distribution remains unchanged. In this case, see Elassandra documentation [Restoring a snapshot](http://doc.elassandra.io/en/latest/operations.html#restoring-a-snapshot).
+You can restore SSTables and Elasticsearch Lucene files on the node where the backup has been done, as data distribution remains unchanged. For further info please see Elassandra documentation [Restoring a snapshot](http://doc.elassandra.io/en/latest/operations.html#restoring-a-snapshot).
 
 ### Restoring
 
-Before restoring indexed tables, recreate the corresponding elasticsearch indices or restore first the keyspace **elastic_admin** keyspace. Once these elasticsearch indices are green (shards STARTED), restore your cassandra data as usual.
+Before restoring indexed tables, the corresponding Elasticsearch indices need to be recreated or or keyspace **elastic_admin** keyspace first restored. Once these elasticsearch indices are in green (shards STARTED), you can restore your Cassandra data as usual.
 
-When restoring data from another cluster, data distribution is not preserved, and the `sstableloader` send each restored rows to the appropriate nodes depending on token ranges distribution. If Elasticsearch indices are STARTED before restoring, data are automatically re-indexed in elasticsearch on each nodes while restoring with `sstableloader`.
+When restoring data from another cluster, data distribution is not preserved, and the `sstableloader` sends each restored rows to the appropriate nodes depending on the token ranges distribution. If Elasticsearch indices are STARTED before restoring, data is automatically re-indexed in Elasticsearch on each nodes while restoring with `sstableloader`.
 
-Set your installation name and Kubernetes namespace:
+Set up your installation name and Kubernetes namespace:
 
 ```shell
 export APP_INSTANCE_NAME=elassandra-1
 export NAMESPACE=default
 ```
 
-To restore Cassandra, you use the `sstableloader` tool. The restore process
+To restore Cassandra, use the `sstableloader` tool. The restore process
 is automated in [`scripts/restore.sh`](scripts/restore.sh). Your source and
 destination clusters can have a different number of nodes.
 
@@ -291,15 +293,15 @@ scripts/restore.sh --keyspace demo \
 
 The script recreates the schema and uploads data to your cluster.
 
-# Updating elassandra
+# Updating Elassandra
 
-Before upgrading, we recommend to snapshot your data.
+Before upgrading, it is recommended to snapshot your data.
 
 ## Update the cluster nodes
 
 ### Patch the StatefulSet with the new image
 
-Set your installation name and Kubernetes namespace:
+Set up your installation name and Kubernetes namespace:
 
 ```shell
 export APP_INSTANCE_NAME=elassandra-1
@@ -315,7 +317,7 @@ kubectl set image statefulset "${APP_INSTANCE_NAME}-elassandra" \
   --namespace "${NAMESPACE}" "elassandra=${IMAGE_ELASSANDRA}"
 ```
 
-After this operation, the StatefulSet has a new image configured for the
+Once the operation is done, the StatefulSet will get a new image configured for the
 containers. However, because of the OnDelete update strategy on the
 StatefulSet, the pods will not automatically restart.
 
@@ -344,7 +346,7 @@ scripts/upgrade.sh --namespace "${NAMESPACE}" \
 
 ### Prepare the environment
 
-Set your installation name and Kubernetes namespace:
+Set up your installation name and Kubernetes namespace:
 
 ```shell
 export APP_INSTANCE_NAME=elassandra-1
@@ -353,7 +355,7 @@ export NAMESPACE=default
 
 ### Delete the resources
 
-> **NOTE:** We recommend to use a kubectl version that is the same as the version of your cluster. Using the same versions of kubectl and the cluster helps avoid unforeseen issues.
+> **NOTE:** It is recommended to use a kubectl version that is the same as the version of your cluster. Using the same versions of kubectl and cluster will help avoid unforeseen issues.
 
 To delete the resources, use the expanded manifest file used for the
 installation.
@@ -374,8 +376,8 @@ kubectl delete application,statefulset,service \
 
 ### Delete the persistent volumes of your installation
 
-By design, the removal of StatefulSets in Kubernetes does not remove
-PersistentVolumeClaims that were attached to their Pods. This prevents your
+By design, the removal of StatefulSets in Kubernetes does not remove  the
+PersistentVolumeClaims that were attached to their Pods. It prevents your
 installations from accidentally deleting stateful data.
 
 To remove the PersistentVolumeClaims with their attached persistent disks, run
@@ -397,7 +399,7 @@ kubectl delete persistentvolumeclaims \
 ### Delete the GKE cluster
 
 Optionally, if you don't need the deployed application or the GKE cluster,
-delete the cluster using this command:
+you can delete the cluster using the following command:
 
 ```
 gcloud container clusters delete "$CLUSTER" --zone "$ZONE"
