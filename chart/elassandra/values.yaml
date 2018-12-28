@@ -1,7 +1,7 @@
 ## Cassandra image version
 ## ref: https://hub.docker.com/r/library/cassandra/
 image:
-  repo: "strapdata/elassandra:6.2.3.8"
+  repo: "strapdata/elassandra:6.2.3.9"
   pullPolicy: IfNotPresent
   ## Specify ImagePullSecrets for Pods
   ## ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
@@ -37,7 +37,7 @@ resources: {}
 ## Change cassandra configuration parameters below:
 ## ref: http://docs.datastax.com/en/cassandra/3.0/cassandra/configuration/configCassandra_yaml.html
 ## Recommended max heap size is 1/2 of system memory
-## Recommended heap new size is 1/4 of max heap size
+## Recommeneed heap new size is 1/4 of max heap size
 ## ref: http://docs.datastax.com/en/cassandra/3.0/cassandra/operations/opsTuneJVM.html
 config:
   cluster_name: elassandra
@@ -73,16 +73,16 @@ debug:
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
 livenessProbe:
   initialDelaySeconds: 30
-  periodSeconds: 5
+  periodSeconds: 15
   timeoutSeconds: 5
   successThreshold: 1
-  failureThreshold: 10
+  failureThreshold: 4
 readinessProbe:
   initialDelaySeconds: 30
-  periodSeconds: 5
+  periodSeconds: 15
   timeoutSeconds: 5
   successThreshold: 1
-  failureThreshold: 10
+  failureThreshold: 4
 
 ## Additional pod-level settings
 podSettings:
@@ -98,7 +98,8 @@ securityContext:
   runAsUser: 999
 
 # Additional env variables
-env: {}
+env:
+  JVM_OPTS: "-Dcassandra.ring_delay_ms=60000 -XX:+ExitOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2"
 
 ## Additional pod labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
