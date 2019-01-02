@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# While scaling down we want to gracefully?????? remove Cassandra node from cluster,
+# While scaling down we want to gracefully remove Cassandra node from cluster,
 # moving all data that belongs to that node to other nodes and stop all writes
 # to this node.
 #
