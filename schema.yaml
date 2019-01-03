@@ -51,7 +51,7 @@ properties:
   resources.requests.memory:
     title: Memory per node
     type: string
-    default: "3Gi"
+    default: "4Gi"
   resources.limits.cpu:
     title: CPU units per node (limit)
     type: string
@@ -77,3 +77,13 @@ required:
 - image.name
 - config.cluster_size
 - persistence.storageClass
+
+x-google-marketplace:
+  clusterConstraints:
+    resources:
+    - requests:
+        cpu: 500m
+        memory: 4Gi
+      affinity:
+        simpleNodeAffinity:
+          type: REQUIRE_ONE_NODE_PER_REPLICA
