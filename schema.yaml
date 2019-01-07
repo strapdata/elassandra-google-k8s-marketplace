@@ -81,7 +81,8 @@ required:
 x-google-marketplace:
   clusterConstraints:
     resources:
-    - requests:
+    - replicas: 1
+      requests:
         cpu: 500m
         memory: 4Gi
       affinity:
