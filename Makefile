@@ -10,8 +10,8 @@ include tools/app.Makefile
 # TODO: change to strapdata/elassandra
 UPSTREAM_IMAGE = docker.io/strapdata/elassandra-rc-debian-gcr:$(TAG)
 #UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
-APP_MAIN_IMAGE ?= $(REGISTRY)/elassandra:$(TAG)
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)
+APP_MAIN_IMAGE ?= $(REGISTRY)/elassandra-rc:$(TAG)
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra-rc/deployer:$(TAG)
 
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
