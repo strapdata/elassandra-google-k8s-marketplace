@@ -14,9 +14,12 @@ before_install:
   - gcloud auth activate-service-account --key-file gcloud-secret.json
   - cat gcloud-secret.json | docker login -u _json_key --password-stdin https://gcr.io
 
+script:
+  - true
+
 deploy:
-- provider: script
-  skip_cleanup: true
-  script: make app/build
-  on:
-    tags: true
+  - provider: script
+    skip_cleanup: true
+    script: make app/build
+    on:
+      tags: true
