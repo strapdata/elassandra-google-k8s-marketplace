@@ -1,4 +1,4 @@
-TAG ?= v6.2.3.10-test-gke-6
+TAG ?= 6.2.3.10
 $(info ---- TAG = $(TAG))
 REGISTRY ?= gcr.io/strapdata-gcp-partnership
 
