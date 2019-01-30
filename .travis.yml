@@ -1,0 +1,22 @@
+sudo: required
+
+services:
+  - docker
+
+cache:
+  directories:
+    - $HOME/google-cloud-sdk/
+
+before_install:
+  - curl https://sdk.cloud.google.com | bash
+  - gcloud -v
+  - echo "$GCLOUD_SECRET_KEY" | base64 -d > gcloud-secret.json
+  - gcloud auth activate-service-account --key-file gcloud-secret.json
+  - cat gcloud-secret.json | docker login -u _json_key --password-stdin https://gcr.io
+
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: make app/build
+  on:
+    tags: true
