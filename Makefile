@@ -7,8 +7,8 @@ include tools/crd.Makefile
 include tools/var.Makefile
 include tools/app.Makefile
 
-
-UPSTREAM_IMAGE = docker.io/strapdata/elassandra:$(TAG)
+# TODO: change to strapdata/elassandra
+UPSTREAM_IMAGE = docker.io/strapdata/elassandra-rc-ci-gke-debian-gcr:$(TAG)
 #UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
 APP_MAIN_IMAGE ?= $(REGISTRY)/elassandra:$(TAG)
 APP_DEPLOYER_IMAGE ?= $(REGISTRY)/elassandra/deployer:$(TAG)
