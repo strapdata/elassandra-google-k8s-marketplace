@@ -3,13 +3,17 @@ sudo: required
 services:
   - docker
 
+env:
+  global:
+     - CLOUDSDK_CORE_DISABLE_PROMPTS: 1
+
 cache:
   directories:
     - $HOME/google-cloud-sdk/
 
-before_install:
-  - curl https://sdk.cloud.google.com > install-gcloud.sh
-  - travis_wait 30 bash ./install-gcloud.sh
+install:
+  - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; curl https://sdk.cloud.google.com | bash; fi
+  - source /home/travis/google-cloud-sdk/path.bash.inc
   - gcloud -v
   - echo "$GCLOUD_SECRET_KEY" | base64 -d > gcloud-secret.json
   - gcloud auth activate-service-account --key-file gcloud-secret.json
