@@ -28,7 +28,7 @@ before_install:
 install:
   - gcloud config set project $GCLOUD_PROJECT
   - gcloud config set compute/zone $GCLOUD_ZONE
-  - PROJECT=$GCLOUD_PROJECT ZONE=$GCLOUD_ZONE CLUSTER=$GCLOUD_CLUSTER./setup-k8s.sh
+  - PROJECT=$GCLOUD_PROJECT ZONE=$GCLOUD_ZONE CLUSTER=$GCLOUD_CLUSTER ./setup-k8s.sh
   - kubectl config get-contexts
 
 script:
