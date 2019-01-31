@@ -3,7 +3,7 @@
 # This script is intended to be used for internal testing only, to create the artifacts necessary for 
 # testing and deploying this code in a sample GKE cluster.
 #
-set -x
+set -xe
 
 PROJECT=${PROJECT:-strapdata-factory}
 CLUSTER=${CLUSTER:-lab}
