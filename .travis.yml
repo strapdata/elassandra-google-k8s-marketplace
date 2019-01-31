@@ -26,6 +26,7 @@ before_install:
   - gcloud components update
 
 install:
+  - export GCLOUD_CLUSTER=${GCLOUD_CLUSTER}-$(head /dev/urandom | tr -dc 0-9 | head -c 4 ; echo '')
   - gcloud config set project $GCLOUD_PROJECT
   - gcloud config set compute/zone $GCLOUD_ZONE
   - PROJECT=$GCLOUD_PROJECT ZONE=$GCLOUD_ZONE CLUSTER=$GCLOUD_CLUSTER bash ./setup-k8s.sh
