@@ -37,10 +37,10 @@ script:
   - REPO_NAME=elassandra-staging make app/verify
 
 after_success:
-  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
+  - gcloud container clusters delete $GCLOUD_CLUSTER --region $GCLOUD_ZONE
 
 after_failure:
-  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
+  - gcloud container clusters delete $GCLOUD_CLUSTER --region $GCLOUD_ZONE
 
 deploy:
   - provider: script
