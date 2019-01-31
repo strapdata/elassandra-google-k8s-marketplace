@@ -31,21 +31,19 @@ install:
   - PROJECT=$GCLOUD_PROJECT ZONE=$GCLOUD_ZONE CLUSTER=$GCLOUD_CLUSTER bash ./setup-k8s.sh
   - kubectl config get-contexts
 
-script: true
+script:
+  - REPO_NAME=elassandra-staging make app/build
+  - REPO_NAME=elassandra-staging make app/verify
 
-#script:
-#  - REPO_NAME=elassandra-staging make app/build
-#  - REPO_NAME=elassandra-staging make app/verify
-#
-#after_success:
-#  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
-#
-#after_failure:
-#  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
-#
-#deploy:
-#  - provider: script
-#    skip_cleanup: true
-#    script: REPO_NAME=elassandra make app/build
-#    on:
-#      tags: true
+after_success:
+  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
+
+after_failure:
+  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: REPO_NAME=elassandra make app/build
+    on:
+      tags: true
