@@ -3,11 +3,11 @@
 # This script is intended to be used for internal testing only, to create the artifacts necessary for 
 # testing and deploying this code in a sample GKE cluster.
 #
-PROJECT=strapdata-factory
-CLUSTER=lab
-ZONE=europe-west1-b
-NODES=3
-API=beta
+PROJECT=${PROJECT:-strapdata-factory}
+CLUSTER=${CLUSTER:-lab}
+ZONE=${ZONE:-europe-west1-b}
+NODES=${NODES:-3}
+API=${API:-beta}
 
 gcloud beta container clusters create $CLUSTER \
     --zone "$ZONE" \

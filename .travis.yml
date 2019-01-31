@@ -6,25 +6,42 @@ services:
 env:
   global:
      - CLOUDSDK_CORE_DISABLE_PROMPTS: 1
+     - GCLOUD_PROJECT: strapdata-gcp-partnership
+     - GCLOUD_ZONE: europe-west1-b
+     - GCLOUD_CLUSTER: elassandra-travis
 
 cache:
   directories:
     - $HOME/google-cloud-sdk/
 
-install:
+before_install:
   - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; curl https://sdk.cloud.google.com | bash; fi
   - source /home/travis/google-cloud-sdk/path.bash.inc
   - gcloud -v
   - echo "$GCLOUD_SECRET_KEY" | base64 -d > gcloud-secret.json
   - gcloud auth activate-service-account --key-file gcloud-secret.json
   - cat gcloud-secret.json | docker login -u _json_key --password-stdin https://gcr.io
+  - gcloud components update kubectl
+
+
+install:
+  - gcloud config set project $GCLOUD_PROJECT
+  - gcloud config set compute/zone $GCLOUD_ZONE
+  - PROJECT=$GCLOUD_PROJECT ZONE=$GCLOUD_ZONE CLUSTER=$GCLOUD_CLUSTER./setup-k8s.sh
 
 script:
-  - true
+  - REPO_NAME=elassandra-staging make app/build
+  - REPO_NAME=elassandra-staging make app/verify
+
+after_success:
+  - gcloud beta container clusters delete $GCLOUD_CLUSTER --region $ZONE
+
+after_failure:
+  - gcloud beta container clusters delete $GCLOUD_CLUSTER --region $ZONE
 
 deploy:
   - provider: script
     skip_cleanup: true
-    script: make app/build
+    script: REPO_NAME=elassandra make app/build
     on:
       tags: true
