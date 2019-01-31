@@ -21,23 +21,25 @@ before_install:
   - echo "$GCLOUD_SECRET_KEY" | base64 -d > gcloud-secret.json
   - gcloud auth activate-service-account --key-file gcloud-secret.json
   - cat gcloud-secret.json | docker login -u _json_key --password-stdin https://gcr.io
-  - gcloud components update kubectl
-
+  - gcloud components install kubectl
+  - gcloud components install beta
+  - gcloud components update
 
 install:
   - gcloud config set project $GCLOUD_PROJECT
   - gcloud config set compute/zone $GCLOUD_ZONE
   - PROJECT=$GCLOUD_PROJECT ZONE=$GCLOUD_ZONE CLUSTER=$GCLOUD_CLUSTER./setup-k8s.sh
+  - kubectl config get-contexts
 
 script:
   - REPO_NAME=elassandra-staging make app/build
   - REPO_NAME=elassandra-staging make app/verify
 
 after_success:
-  - gcloud beta container clusters delete $GCLOUD_CLUSTER --region $ZONE
+  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
 
 after_failure:
-  - gcloud beta container clusters delete $GCLOUD_CLUSTER --region $ZONE
+  - gcloud container clusters delete $GCLOUD_CLUSTER --region $ZONE
 
 deploy:
   - provider: script
