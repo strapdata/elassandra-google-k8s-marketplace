@@ -1,0 +1,81 @@
+actions:
+- name: 3 nodes deployed successfully
+  bashTest:
+    script: |-
+      set -xe
+      function info {
+        >&2 echo "${@}"
+      }
+
+      function get_desired_number_of_replicas_in_sts {
+        kubectl get sts "${STS_NAME}" \
+          --namespace "${NAMESPACE}" \
+          --output jsonpath='{.spec.replicas}'
+      }
+
+      function get_current_number_of_replicas_in_sts {
+        kubectl get sts "${STS_NAME}" \
+          --namespace "${NAMESPACE}" \
+          --output jsonpath='{.status.readyReplicas}'
+      }
+
+      function wait_for_healthy_sts {
+        info "Waiting for equal desired and current number of replicas"
+        while [[ $(get_current_number_of_replicas_in_sts) -ne $(get_desired_number_of_replicas_in_sts) ]]; do
+          info "Sleeping 10 seconds before rechecking..."
+          sleep 10
+        done
+        info "Statefulset has equal current and desired number of replicas"
+      }
+      STS_NAME="${NAME}"
+      wait_for_healthy_sts
+      kubectl get sts "${STS_NAME}" \
+        --namespace "${NAMESPACE}" \
+        --output jsonpath='{.status.readyReplicas}'
+    expect:
+      statusCode:
+        equals: 0
+- name: Wait for pods to be ready
+  bashTest:
+    script: |-
+      set -ex
+      is_pod_ready() {
+         [[ "$(kubectl get po "$1" --namespace ${NAMESPACE} -o 'jsonpath={.status.conditions[?(@.type=="Ready")].status}')" == 'True' ]]
+      }
+      wait_pod_ready(){
+        while true; do
+          echo "waiting for pod $1 to be ready"
+          is_pod_ready $1 && return 0
+          sleep 1
+        done
+      }
+      wait_pod_ready ${NAME}-elassandra-0
+      wait_pod_ready ${NAME}-elassandra-1
+      wait_pod_ready ${NAME}-elassandra-2
+    expect:
+      statusCode:
+        equals: 0
+- name: Execute CQL query
+  bashTest:
+    script: |-
+      set -x
+      export CQLSH_HOST=${NAME}-elassandra-0.${NAME}-elassandra.${NAMESPACE}.svc.cluster.local
+      echo $CQLSH_HOST
+      cqlsh -e 'SHOW HOST' --cqlversion="3.4.4" 2>&1
+    expect:
+      stdout:
+        contains: 'Connected to'
+      statusCode:
+        equals: 0
+
+- name: Execute ES REST query
+  bashTest:
+    script: |-
+      set -x
+      export ES_HOST=${NAME}-elassandra-0.${NAME}-elassandra.${NAMESPACE}.svc.cluster.local
+      curl $ES_HOST:9200 2>&1
+    expect:
+      stdout:
+        contains: "cluster_name"
+      statusCode:
+        equals: 0
