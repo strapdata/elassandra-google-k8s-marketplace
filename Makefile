@@ -10,7 +10,8 @@ include tools/crd.Makefile
 include tools/var.Makefile
 include tools/app.Makefile
 
-UPSTREAM_IMAGE = docker.io/strapdata/$(REPO_NAME)-debian-gcr:$(TAG)
+# TODO: change to elassandra
+UPSTREAM_IMAGE = docker.io/strapdata/elassandra-rc-debian-gcr:$(TAG)
 #UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
 APP_MAIN_IMAGE ?= $(REGISTRY)/$(REPO_NAME):$(TAG)
 APP_DEPLOYER_IMAGE ?= $(REGISTRY)/$(REPO_NAME)/deployer:$(TAG)
