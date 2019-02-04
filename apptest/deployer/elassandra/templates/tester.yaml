@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-tester"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+  annotations:
+    helm.sh/hook: test-success
+spec:
+  containers:
+  - name: tester
+    image: "{{ .Values.tester.image }}"
+    imagePullPolicy: Always
+    env:
+    - name: NAME
+      value: "{{ .Release.Name }}"
+    - name: NAMESPACE
+      value: "{{ .Release.Namespace }}"
+  restartPolicy: Never
+  serviceAccount: "{{ .Release.Name }}-deployer-sa"
+  serviceAccountName: "{{ .Release.Name }}-deployer-sa"

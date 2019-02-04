@@ -14,9 +14,9 @@ process() {
   wget $url -O tmp.x
   mkdir ${group}_${name}
   if [[ $url = *.zip ]]; then
-    unzip tmp.x -d ${group}_${name}
+    unzip tmp.x -d ${group}_${name} >/dev/null
   elif [[ $url = *.tar.gz ]]; then
-    tar xzf tmp.x -C ${group}_${name}
+    tar xzf tmp.x -C ${group}_${name} >/dev/null
   fi
   rm tmp.x
 }
