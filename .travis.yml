@@ -48,4 +48,3 @@ deploy:
     script: REPO_NAME=elassandra make app/build
     on:
       tags: true
-      branch: master
