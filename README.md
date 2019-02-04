@@ -1,5 +1,7 @@
 # Elassandra Google k8s Marketplace
 
+[![Build Status](https://travis-ci.org/strapdata/elassandra-google-k8s-marketplace.svg?branch=master)](https://travis-ci.org/strapdata/elassandra-google-k8s-marketplace)
+
 ![Elassandra Logo](resources/elassandra-logo.png)
 
 This repository contains instructions and files necessary for running [Elassandra](https://github.com/strapdata/elassandra) via 
