@@ -45,6 +45,6 @@ after_failure:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: REPO_NAME=elassandra make app/build
+    script: REPO_NAME=elassandra-rc make app/build
     on:
       tags: true
