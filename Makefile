@@ -1,6 +1,6 @@
 TAG ?= 6.2.3.10
 $(info ---- TAG = $(TAG))
-REGISTRY ?= gcr.io/strapdata-gcp-partnership
+REGISTRY ?= gcr.io/strapdata-gcp-partnership/
 
 REPO_NAME ?= elassandra
 
@@ -11,8 +11,8 @@ include tools/app.Makefile
 
 UPSTREAM_IMAGE = docker.io/strapdata/elassandra-debian-gcr:$(TAG)
 #UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
-APP_MAIN_IMAGE ?= $(REGISTRY)/$(REPO_NAME):$(TAG)
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)/$(REPO_NAME)/deployer:$(TAG)
+APP_MAIN_IMAGE ?= $(REGISTRY)$(REPO_NAME):$(TAG)
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/deployer:$(TAG)
 
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
@@ -21,7 +21,7 @@ APP_PARAMETERS ?= { \
   "image.name": "$(APP_MAIN_IMAGE)" \
 }
 
-TESTER_IMAGE ?= $(REGISTRY)/$(REPO_NAME)/tester:$(TAG)
+TESTER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/tester:$(TAG)
 
 APP_TEST_PARAMETERS ?= { \
   "tester.image": "$(TESTER_IMAGE)" \
@@ -47,7 +47,7 @@ app/build:: .build/elassandra/deployer \
                            .build/var/TAG \
                            | .build/elassandra
 	docker build \
-	    --build-arg REGISTRY="$(REGISTRY)/$(REPO_NAME)" \
+	    --build-arg REGISTRY="$(REGISTRY)$(REPO_NAME)" \
 	    --build-arg TAG="$(TAG)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    -f deployer/Dockerfile \
