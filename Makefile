@@ -57,6 +57,7 @@ app/build:: .build/elassandra/deployer \
 
 
 .build/elassandra/elassandra: elassandra/* \
+							.build/var/APP_MAIN_IMAGE \
 							.build/var/REGISTRY \
                             .build/var/TAG \
                             | .build/elassandra
