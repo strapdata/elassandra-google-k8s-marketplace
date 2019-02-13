@@ -19,7 +19,8 @@ before_install:
   - source /home/travis/google-cloud-sdk/path.bash.inc
   - gcloud -v
   - echo "$GCLOUD_SECRET_KEY" | base64 -d > gcloud-secret.json
-  - cat $GCLOUD_SECRET_KEY
+  - echo $GCLOUD_SECRET_KEY
+  - cat gcloud-secret.json
   - gcloud auth activate-service-account --key-file gcloud-secret.json
   - cat gcloud-secret.json | docker login -u _json_key --password-stdin https://gcr.io
   - gcloud components install kubectl
