@@ -1,4 +1,4 @@
-TAG ?= 6.2.3.12
+TAG ?= 6.2.3.13
 $(info ---- TAG = $(TAG))
 REGISTRY ?= gcr.io/strapdata-gcp-partnership/
 
