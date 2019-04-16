@@ -1,5 +1,7 @@
 TAG ?= 6.2.3.13
+TAG_GOOGLE ?= $(shell echo ${TAG} | sed 's/\.\([0-9]\+\)$$/\1/g')
 $(info ---- TAG = $(TAG))
+$(info ---- TAG_GOOGLE = $(TAG_GOOGLE))
 REGISTRY ?= gcr.io/strapdata-gcp-partnership/
 
 REPO_NAME ?= elassandra
@@ -11,8 +13,8 @@ include tools/app.Makefile
 
 UPSTREAM_IMAGE = docker.io/strapdata/elassandra-debian-gcr:$(TAG)
 #UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
-APP_MAIN_IMAGE ?= $(REGISTRY)$(REPO_NAME):$(TAG)
-APP_DEPLOYER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/deployer:$(TAG)
+APP_MAIN_IMAGE ?= $(REGISTRY)$(REPO_NAME):$(TAG_GOOGLE)
+APP_DEPLOYER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/deployer:$(TAG_GOOGLE)
 
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
@@ -21,7 +23,7 @@ APP_PARAMETERS ?= { \
   "image.name": "$(APP_MAIN_IMAGE)" \
 }
 
-TESTER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/tester:$(TAG)
+TESTER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/tester:$(TAG_GOOGLE)
 
 APP_TEST_PARAMETERS ?= { \
   "tester.image": "$(TESTER_IMAGE)" \
@@ -48,7 +50,7 @@ app/build:: .build/elassandra/deployer \
                            | .build/elassandra
 	docker build \
 	    --build-arg REGISTRY="$(REGISTRY)$(REPO_NAME)" \
-	    --build-arg TAG="$(TAG)" \
+	    --build-arg TAG="$(TAG_GOOGLE)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    -f deployer/Dockerfile \
 	    .
