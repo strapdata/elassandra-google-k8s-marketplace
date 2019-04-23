@@ -1,5 +1,5 @@
 TAG ?= 6.2.3.13
-TAG_GOOGLE ?= $(shell echo ${TAG} | sed 's/\.\([0-9]\+\)$$/\1/g')
+TAG_GOOGLE ?= $(shell echo ${TAG} | sed 's/\.\([0-9]\+\)$$/-\1/g')
 $(info ---- TAG = $(TAG))
 $(info ---- TAG_GOOGLE = $(TAG_GOOGLE))
 REGISTRY ?= gcr.io/strapdata-gcp-partnership/
