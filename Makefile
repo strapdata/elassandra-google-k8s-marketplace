@@ -1,9 +1,12 @@
 TAG ?= 6.2.3.14
 TAG_GOOGLE ?= $(shell echo ${TAG} | sed 's/\.\([0-9]\+\)$$/-\1/g')
 TAG_TRACK ?= $(shell echo ${TAG} | sed 's/\([0-9]\+\.[0-9]\+\).*$$/\1/g')
+TAG_TRACK2 ?= $(shell echo ${TAG} | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$$/\1/g')
+
 $(info ---- TAG = $(TAG))
 $(info ---- TAG_GOOGLE = $(TAG_GOOGLE))
 $(info ---- TAG_TRACK = $(TAG_TRACK))
+$(info ---- TAG_TRACK2 = $(TAG_TRACK2))
 REGISTRY ?= gcr.io/strapdata-gcp-partnership/
 
 REPO_NAME ?= elassandra
@@ -17,10 +20,11 @@ UPSTREAM_IMAGE = docker.io/strapdata/elassandra-debian-gcr:$(TAG)
 #UPSTREAM_IMAGE = container-nexus.azure.strapcloud.com/gcr/elassandra:$(TAG)
 APP_MAIN_IMAGE ?= $(REGISTRY)$(REPO_NAME):$(TAG_GOOGLE)
 APP_MAIN_IMAGE_TRACK ?= $(REGISTRY)$(REPO_NAME):$(TAG_TRACK)
+APP_MAIN_IMAGE_TRACK2 ?= $(REGISTRY)$(REPO_NAME):$(TAG_TRACK2)
 
 APP_DEPLOYER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/deployer:$(TAG_GOOGLE)
 APP_DEPLOYER_IMAGE_TRACK ?= $(REGISTRY)$(REPO_NAME)/deployer:$(TAG_TRACK)
-
+APP_DEPLOYER_IMAGE_TRACK2 ?= $(REGISTRY)$(REPO_NAME)/deployer:$(TAG_TRACK2)
 
 NAME ?= elassandra-1
 APP_PARAMETERS ?= { \
@@ -31,6 +35,7 @@ APP_PARAMETERS ?= { \
 
 TESTER_IMAGE ?= $(REGISTRY)$(REPO_NAME)/tester:$(TAG_GOOGLE)
 TESTER_IMAGE_TRACK ?= $(REGISTRY)$(REPO_NAME)/tester:$(TAG_TRACK)
+TESTER_IMAGE_TRACK2 ?= $(REGISTRY)$(REPO_NAME)/tester:$(TAG_TRACK2)
 
 APP_TEST_PARAMETERS ?= { \
   "tester.image": "$(TESTER_IMAGE)" \
@@ -60,10 +65,12 @@ app/build:: .build/elassandra/deployer \
 	    --build-arg TAG="$(TAG_GOOGLE)" \
 	    --tag "$(APP_DEPLOYER_IMAGE)" \
 	    --tag "$(APP_DEPLOYER_IMAGE_TRACK)" \
+		--tag "$(APP_DEPLOYER_IMAGE_TRACK2)" \
 	    -f deployer/Dockerfile \
 	    .
 	docker push "$(APP_DEPLOYER_IMAGE)"
 	docker push "$(APP_DEPLOYER_IMAGE_TRACK)"
+	docker push "$(APP_DEPLOYER_IMAGE_TRACK2)"
 	@touch "$@"
 
 
@@ -76,10 +83,12 @@ app/build:: .build/elassandra/deployer \
 	    --build-arg BASE_IMAGE="$(UPSTREAM_IMAGE)" \
 	    --tag "$(APP_MAIN_IMAGE)" \
 	    --tag "$(APP_MAIN_IMAGE_TRACK)" \
+	    --tag "$(APP_MAIN_IMAGE_TRACK2)" \
 	    -f elassandra/Dockerfile \
 	    .
 	docker push "$(APP_MAIN_IMAGE)"
 	docker push "$(APP_MAIN_IMAGE_TRACK)"
+	docker push "$(APP_MAIN_IMAGE_TRACK2)"
 	@touch "$@"
 
 .build/elassandra/tester:   .build/var/TESTER_IMAGE \
@@ -87,7 +96,8 @@ app/build:: .build/elassandra/deployer \
                            | .build/elassandra
 	$(call print_target,$@)
 	cd apptest/tester \
-	    && docker build --tag "$(TESTER_IMAGE)" --tag "$(TESTER_IMAGE_TRACK)" .
+	    && docker build --tag "$(TESTER_IMAGE)" --tag "$(TESTER_IMAGE_TRACK) --tag "$(TESTER_IMAGE_TRACK2)" .
 	docker push "$(TESTER_IMAGE)"
 	docker push "$(TESTER_IMAGE_TRACK)"
+	docker push "$(TESTER_IMAGE_TRACK2)"
 	@touch "$@"
